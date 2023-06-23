@@ -1,0 +1,184 @@
+$txt: #f4eee0;
+$txt-h: #ffffff;
+$txt-m: #d2cbbc;
+$fg: #19191b;
+$fg-h: #2c2c31;
+$fg-a: #262626ce;
+$fg-m: #0d0d0e;
+$fg-ma: #1d1d1db3;
+$bg: #1d1c21;
+$bg-a: #1d1c21bd;
+
+$brr: 15px;
+
+$main: #19a7ce;
+$main-a: #19a7cec6;
+$main-am: #13738ea4;
+$main-m: #0d2945;
+$main-hm: #0e84a5;
+$main-h: #2bb9e1;
+
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+
+  color: $txt;
+  background-color: $bg;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: $bg !important;
+}
+
+.container {
+  $margin: 10px;
+  $nav_width: 60px;
+  margin: $margin;
+  display: flex;
+  gap: $margin;
+
+  nav.server-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-basis: $nav_width;
+    max-width: $nav_width;
+    height: calc(100vh - (2 * $margin));
+    z-index: 500;
+    nav {
+      $padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: $padding;
+      padding: $padding;
+      max-width: calc($nav_width - $margin + $padding);
+      width: $nav_width;
+      background-color: $fg;
+      box-sizing: border-box;
+      border-radius: $brr;
+      .side-server {
+        display: block;
+        width: calc($nav_width - $margin - $padding);
+        height: calc($nav_width - $margin - $padding);
+        border-radius: $brr;
+        background-color: $fg-h;
+        color: $txt-m;
+        transition: all 50ms;
+        outline: 0px solid $main-h;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        &:not(.create-new):has(img) {
+          filter: brightness(60%);
+        }
+
+        &:hover {
+          background-color: $fg-m;
+          color: $txt-h;
+          outline: 2px dotted $main-h;
+          filter: brightness(90%) !important;
+          &::after {
+            opacity: 1;
+            transform: translateY(-50%) scaleX(1);
+          }
+        }
+        &::after {
+          content: attr(data-server-name);
+          position: absolute;
+          left: 120%;
+          top: 50%;
+          background-color: $fg-h;
+          box-sizing: border-box;
+          padding: 0.4rem 0.3rem;
+          border-radius: calc($brr / 2);
+          transform: translateY(-50%) scaleX(0);
+          transform-origin: left;
+          transition: all 200ms;
+          font-size: 1.1rem;
+          white-space: nowrap;
+          opacity: 0;
+          user-select: none;
+          cursor: initial;
+          z-index: 9999;
+        }
+        &.open {
+          outline: 3px solid $main;
+          filter: brightness(100%) !important;
+          &.create-new {
+            color: $main;
+          }
+        }
+        img {
+          margin: 0 -6px;
+          width: calc($nav_width - $margin - $padding);
+          height: calc($nav_width - $margin - $padding);
+          border-radius: $brr;
+          object-fit: cover;
+        }
+      }
+      .home-button {
+        display: block;
+        width: calc($nav_width - $margin - $padding);
+        height: calc($nav_width - $margin - $padding);
+        border-radius: $brr;
+        background-color: $fg-h;
+        color: $txt-m;
+        transition: all 200ms;
+        cursor: pointer;
+  
+        &:hover {
+          background-color: $fg-m;
+          color: $main;
+          outline: 2px dotted $main-h;
+        }
+
+        &.open {
+          outline: 3px solid $main;
+          filter: brightness(100%);
+          color: $main-h;
+        }
+      }
+    }
+  }
+  main {
+    flex-basis: auto;
+    background-color: $fg;
+    width: 100%;
+    height: calc(100vh - (2* $margin));
+    padding: 10px;
+    border-radius: $brr;
+    box-sizing: border-box;
+    overflow: auto;
+  }
+}
+
+a {
+  font-weight: 500;
+  color: $main;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: $main-m;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 2px;
+}
+::-webkit-scrollbar-track {
+  background-color: $main-m;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $main;
+  border-radius: 3px;
+}
