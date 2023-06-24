@@ -5,7 +5,7 @@ mod server;
 mod config;
 use serde_json;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path,PathBuf};
 
 fn get_servers_dir() -> PathBuf {
     let data_dir = dirs::data_dir().expect("Failed to get the data directory");
@@ -118,6 +118,15 @@ fn remove_server_commamd(server_id: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn get_mods_as_string(server_id: &str) -> Result<String, String> {
+    let servers_dir = get_servers_dir();
+    let server_folder = servers_dir.join("servers").join(server_id);
+    let server_info = server::mods::get_server_mods(server_folder.as_path()).map_err(|e| e.to_string())?;
+    let mods_string = serde_json::to_string_pretty(&server_info).map_err(|e| e.to_string())?;
+    Ok(mods_string)
+}
+
+#[tauri::command]
 async fn download_mod_command(server_id: &str, mod_url: &str, mod_info: &str) -> Result<String, String> {
     Ok(server::mods::add_mod_to_server(server_id, mod_url, mod_info).await?)
 }
@@ -221,6 +230,7 @@ fn main() {
         edit_server,
         remove_server_commamd,
         download_mod_command,
+        get_mods_as_string,
     ])
     .run(tauri::generate_context!())
     .expect("Error while running Tauri application");

@@ -1,7 +1,7 @@
 use crate::files::server::get_servers_dir;
 use std::fs;
 use std::io::{self, Read, Write};
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use serde_json::{Value, json};
 use reqwest;
 
@@ -69,4 +69,14 @@ fn write_server_info(path: &Path, server_info: &Value) -> io::Result<()> {
     let mut file = fs::File::create(path)?;
     file.write_all(data.as_bytes())?;
     Ok(())
+}
+
+pub fn get_server_mods(path: &Path) -> io::Result<Vec<Value>> {
+    let server_info: Value = read_server_info(path.join("server-info.json").as_path()).unwrap();
+    
+    if let Some(mods) = server_info["mods"].as_array() {
+        Ok(mods.to_owned())
+    } else {
+        Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid mods data"))
+    }
 }

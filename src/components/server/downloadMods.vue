@@ -84,6 +84,9 @@ h1 {
       background-color: $fg-ma;
       border-radius: $brr;
     }
+    &.downloaded {
+      outline: 2px solid $main;
+    }
 
     .mod-info {
       .tags {
@@ -183,6 +186,7 @@ h1 {
     <div class="mod-grid">
       <article
         class="mod-box"
+        :class="{downloaded: downloadedModIds.indexOf(mod.project_id) !== -1}"
         v-for="(mod, index) in modData"
         :key="index"
         @click="goToModInfo(mod.project_id)"
@@ -259,20 +263,24 @@ h1 {
     v-if="serverVersion && serverType"
     :key="openModId + serverVersion + serverType + serverId + Date.now()"
     :serverType="serverType"
+    :applyFilters="useFilters"
     :serverId="serverId"
     :serverVersion="serverVersion"
-    @goToModGrid="openModId = ''"
+    @goToModGrid="goToModGrid"
     v-show="openModId != ''"
   ></ModInfo>
 </template>
 
 <script>
+import { invoke } from '@tauri-apps/api/tauri';
 import ModInfo from "./modInfo.vue";
 export default {
   name: "ModrinthMods",
   data() {
     return {
       modData: [],
+      downloadedModIds: [],
+      downloadedMods: [],
       offset: 0,
       pageLenght: 20,
       openModId: "",
@@ -300,8 +308,18 @@ export default {
   },
   mounted() {
     this.fetchModsFromModrinth();
+    this.getDownloadedMods();
   },
   methods: {
+    async getDownloadedMods() {
+      await invoke("get_mods_as_string",{
+          serverId: this.serverId
+      }).then(downloadedMods => {
+        this.downloadedMods = JSON.parse(downloadedMods)
+        this.downloadedModIds = JSON.parse(downloadedMods).map(item => item.project_id);
+        console.log(this.downloadedModIds);
+      }) 
+    },
     fetchModsFromModrinth() {
       if (
         this.serverId != "" &&
@@ -352,6 +370,10 @@ export default {
     goToModInfo(modId) {
       this.openModId = modId;
       console.log(this.openModId);
+    },
+    goToModGrid() {
+      this.openModId = "";
+      this.getDownloadedMods();
     },
     goToNextPage() {
       this.modData = {};

@@ -37,6 +37,10 @@
     box-sizing: border-box;
 
     cursor: pointer;
+    &:disabled {
+        background-color: $main-m;
+        cursor: not-allowed;
+    }
   }
 }
 
@@ -109,6 +113,29 @@
       }
     }
 
+    .loaders-versions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 5px;
+      padding: 2px 0;
+      overflow: auto;
+      span {
+        padding: 2px;
+        margin: 8px 3px 0 0;
+        border-radius: 5px;
+        background-color: $fg-h;
+        &.tag-loader {
+          background-color: $main-am;
+        } 
+        &.tag-version {
+          background-color: $main-m;
+        } 
+      }
+
+      
+    }
+
     .changelog {
       height: 200px;
       overflow: auto;
@@ -154,7 +181,7 @@
         </svg>
       </div>
       <h1>{{ modData.title + " " + modData.id || "Loading..." }}</h1>
-      <button @click="showDownload = true">
+      <button @click="showDownload = true" :key="modData" :disabled="modData.modVersions === null">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -199,13 +226,13 @@
       </svg>
       <vue-markdown :source="modData.body || ''" />
     </div>
-    <div class="modal-download" :key="modData"  v-if="showDownload && modData.modVersions != null">
+    <div class="modal-download" :key="modData"  v-if="showDownload && modData.modVersions !== null">
       <div class="modal-window">
         <h3>
           <span>{{ modData.title }}</span>
           <button @click="showDownload = false">X</button>
         </h3>
-        <select @change="selectVersion($event)" :key="modData.modVersions + modData">
+        <select @change="selectVersion($event)" :key="modData.modVersions + modData + showDownload">
           <option
             v-for="(version, index) in modData.modVersions"
             :value="version.id"
@@ -213,7 +240,15 @@
           >
             {{ version.version_number || version.id }}
           </option>
-        </select>
+        </select> 
+        <div class="loaders-versions">
+          <div class="loaders">
+            <span class="tag-loader" v-for="(loader, index) in versionLoaders" :key="index">{{ loader }}</span>
+          </div>
+          <div class="versions">
+            <span class="tag-version" v-for="(version, index) in versionVersions" :key="index">{{ version }}</span>
+          </div>
+        </div>
         <hr />
         <div class="changelog">
           <vue-markdown :source="versionText" />
@@ -242,6 +277,10 @@ export default {
       default: "",
       type: String,
     },
+    applyFilters: {
+      default: "",
+      type: Boolean,
+    },
     serverType: {
       default: "",
       type: String,
@@ -262,6 +301,8 @@ export default {
     return {
       modData: {},
       versionText: "",
+      versionVersions: [],
+      versionLoaders: [],
       showDownload: false,
       versionId: "",
     };
@@ -297,8 +338,10 @@ export default {
         let url = `https://api.modrinth.com/v2/project/${this.modId}/version`;
         url = new URL(url);
         let params = new URLSearchParams();
-        params.append("game_versions", `["${this.serverVersion}"]`);
-        params.append("loaders", `["${this.serverType}"]`);
+        if (this.applyFilters) {
+          params.append("game_versions", `["${this.serverVersion}"]`);
+          params.append("loaders", `["${this.serverType}"${this.serverType === "quilt"?',"fabric"':''}]`);
+        }
         url.search = params.toString();
         console.log("modUrl",url);
         await fetch(url, {
@@ -316,6 +359,8 @@ export default {
           .then(() => {
             if (this.modData.modVersions[0]) {
               this.versionText = this.modData.modVersions[0].changelog;
+              this.versionVersions = this.modData.modVersions[0].game_versions;
+              this.versionLoaders = this.modData.modVersions[0].loaders;
               this.versionId = this.modData.modVersions[0].id;
             }
             console.log("ModVersions",this.modData.modVersions);
@@ -336,19 +381,27 @@ export default {
         file_name: this.modData.modVersions[0].files[0].filename,
       }
       this.$refs["downloadButton"].disabled = true;
-      console.log(
-        "downloadMod",
         await invoke("download_mod_command", {
           serverId: this.serverId,
           modUrl: url,
           modInfo: JSON.stringify(modInfo),
+        }).then(downloadingMod => {
+          if (downloadingMod.startsWith("[success]")) {
+            this.$refs["downloadButton"].innerText = "Success";
+          }
+          console.log(downloadingMod);
         })
-      );
     },
     selectVersion(event) {
       this.versionText = this.modData.modVersions.find(
         (obj) => obj.id === event.target.value
       ).changelog;
+      this.versionVersions = this.modData.modVersions.find(
+        (obj) => obj.id === event.target.value
+      ).game_versions;
+      this.versionLoaders = this.modData.modVersions.find(
+        (obj) => obj.id === event.target.value
+      ).loaders;
       this.versionId = event.target.value;
     },
   },
