@@ -1,11 +1,9 @@
-use crate::files::server::get_servers_dir;
+use crate::files::get::get_server_folder;
 use std::fs;
 use std::io::Read;
 
 pub fn get_server_log(server_id: &str) -> Result<String, String> {
-    let server_info_path = get_servers_dir()
-        .join("servers")
-        .join(server_id)
+    let server_info_path = get_server_folder(server_id)
         .join("server_latest_log.log");
 
     if server_info_path.exists() {

@@ -2,7 +2,7 @@
 name = "mc-server-manager"
 version = "0.0.1"
 description = "Minecraft Server Manager"
-authors = ["Oldisek"]
+authors = ["Oxydien"]
 license = "MIT"
 repository = ""
 edition = "2021"

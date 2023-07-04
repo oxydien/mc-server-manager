@@ -5,7 +5,7 @@ mod server;
 mod config;
 use serde_json;
 use std::fs;
-use std::path::{Path,PathBuf};
+use std::path::{PathBuf};
 
 fn get_servers_dir() -> PathBuf {
     let data_dir = dirs::data_dir().expect("Failed to get the data directory");
@@ -76,7 +76,7 @@ async fn add_server_command(
                 "[add-server-command]: Running newest fabric installer {}",
                 installed_installer_version.clone()
             );
-            server::create::run_fabric_installer(
+            crate::server::create::run_fabric_installer(
                 &server_path,
                 &installed_installer_version,
                 &mc_version_clone,

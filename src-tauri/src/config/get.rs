@@ -1,11 +1,11 @@
-use crate::files::server::get_servers_dir;
+use crate::files::get::get_app_folder;
 use crate::server::info::get_server_info;
 use std::fs::{ File};
 use std::io::{Read,Write};
 use serde_json::Value;
 
 pub fn get_settings() -> Result<String, String> {
-  let appdata = get_servers_dir();
+  let appdata = get_app_folder();
   let settings_path = appdata.join("config.json");
 
   if settings_path.exists() {

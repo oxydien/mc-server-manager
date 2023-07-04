@@ -1,12 +1,8 @@
-use crate::files::server::get_servers_dir;
+use crate::files::get::get_server_folder;
 use std::{fs, io::Read};
-use mcping::get_status;
 
 pub fn get_server_info(server_id: &str) -> Result<String, String> {
-    let server_info_path = get_servers_dir()
-        .join("servers")
-        .join(server_id)
-        .join("server-info.json");
+    let server_info_path = get_server_folder(server_id).join("server-info.json");
 
     let mut server_info_file = fs::File::open(server_info_path).map_err(|e| e.to_string())?;
 
@@ -21,10 +17,7 @@ pub fn get_server_info(server_id: &str) -> Result<String, String> {
 }
 
 pub async fn check_server_status(server_id: &str) -> Result<bool, String> {
-    let pid_file_path = get_servers_dir()
-        .join("servers")
-        .join(server_id)
-        .join("server_pid.txt");
+    let pid_file_path = get_server_folder(server_id).join("server_pid.txt");
 
     if !pid_file_path.exists() {
         return Ok(false);
@@ -54,7 +47,7 @@ pub async fn check_server_status(server_id: &str) -> Result<bool, String> {
 }
 
 pub fn update_server_info_field(name: &str, value: &str, server_id: &str) -> Result<(), String> {
-    let server_dir = get_servers_dir().join("servers").join(server_id);
+    let server_dir = get_server_folder(server_id);
     let server_info_path = server_dir.join("server-info.json");
 
     let server_info_content = match fs::read_to_string(&server_info_path) {
@@ -71,20 +64,16 @@ pub fn update_server_info_field(name: &str, value: &str, server_id: &str) -> Res
 
     let updated_server_info_content = match serde_json::to_string_pretty(&server_info) {
         Ok(content) => content,
-        Err(err) => return Err(format!("Failed to serialize updated server-info.json: {}", err)),
+        Err(err) => {
+            return Err(format!(
+                "Failed to serialize updated server-info.json: {}",
+                err
+            ))
+        }
     };
 
     match fs::write(&server_info_path, updated_server_info_content) {
         Ok(()) => Ok(()),
         Err(err) => Err(format!("Failed to write updated server-info.json: {}", err)),
     }
-}
-
-pub fn get_server_status(port: u32) -> Result<(u32, mcping::Response), String> {
-    let address = format!("localhost:{}", port);
-
-    let (latency, response) = mcping::get_status(&address, None)
-        .map_err(|err| format!("Failed to get server status: {}", err))?;
-
-    Ok((latency.try_into().unwrap(), response))
 }

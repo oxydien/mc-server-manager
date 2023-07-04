@@ -1,13 +1,13 @@
-use crate::files::server::get_servers_dir;
 use std::fs;
 use std::io::{self, Read, Write};
 use std::path::{Path};
 use serde_json::{Value, json};
 use reqwest;
 
+use crate::files::get::{get_server_folder};
+
 pub async fn add_mod_to_server(server_id: &str, url: &str, mod_info: &str) -> Result<String, String> {
-    let servers_dir = get_servers_dir();
-    let server_folder = servers_dir.join("servers").join(server_id);
+    let server_folder = get_server_folder(server_id);
     let mods_folder = server_folder.join("mods");
 
     fs::create_dir_all(&mods_folder).map_err(|e| e.to_string())?;

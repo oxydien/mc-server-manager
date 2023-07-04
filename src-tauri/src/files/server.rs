@@ -4,26 +4,9 @@ use serde_json::json;
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use crate::server::structs::SimpleServerInfo;
 
-#[cfg(target_os = "windows")]
-pub fn get_servers_dir() -> PathBuf {
-    dirs::data_dir()
-        .expect("Failed to get the data directory")
-        .join("mc-svr-mng")
-}
-
-#[cfg(target_os = "linux")]
-const SERVERS_DIR: &str = "/etc/mc-svr-mng";
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Server {
-    id: String,
-    name: String,
-    server_type: String,
-    mc_version: String,
-    mods: Option<Vec<Mod>>,
-    image: Option<String>,
-}
+use super::get::{get_app_folder, get_servers_json};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Mod {
@@ -32,7 +15,7 @@ pub struct Mod {
 }
 
 fn update_servers_json(server_info: &serde_json::Value) {
-    let servers_dir = get_servers_dir();
+    let servers_dir = get_app_folder();
     let servers_file = servers_dir.join("servers.json");
     let servers_data = if servers_file.exists() {
         let data = fs::read_to_string(&servers_file).expect("Failed to read servers.json");
@@ -66,7 +49,7 @@ fn update_servers_json(server_info: &serde_json::Value) {
 
 fn create_server_folder(server_name: &str) -> PathBuf {
     let sanitized_server_name = sanitize_folder_name(server_name);
-    let servers_dir = get_servers_dir();
+    let servers_dir = get_app_folder();
     let server_folder = servers_dir.join("servers").join(&sanitized_server_name);
 
     fs::create_dir_all(&server_folder).expect("Failed to create server folder");
@@ -146,7 +129,7 @@ async fn download_image(
 pub async fn create_server(server_name: &str, mc_version: &str, server_type: &str, image: Option<&str>) {
     let sanitized_name = sanitize_folder_name(server_name);
 
-    let servers_dir = get_servers_dir();
+    let servers_dir = get_app_folder();
     let servers_file = servers_dir.join("servers.json");
 
     let servers_data = if servers_file.exists() {
@@ -193,12 +176,8 @@ pub fn sanitize_folder_name(name: &str) -> String {
         .to_lowercase()
 }
 
-pub fn read_servers_json() -> Result<Vec<Server>, String> {
-    #[cfg(target_os = "windows")]
-    let file_path = get_servers_dir().join("servers.json");
-
-    #[cfg(target_os = "linux")]
-    let file_path = Path::new(SERVERS_DIR).join("servers.json");
+pub fn read_servers_json() -> Result<Vec<SimpleServerInfo>, String> {
+    let file_path = get_servers_json();
 
     let path = Path::new(&file_path);
 
@@ -236,7 +215,7 @@ pub fn read_servers_json() -> Result<Vec<Server>, String> {
             |arr| {
                 arr.iter()
                     .map(|server| {
-                        serde_json::from_value::<Server>(server.clone())
+                        serde_json::from_value::<SimpleServerInfo>(server.clone())
                             .map_err(|e| e.to_string())
                     })
                     .collect()
@@ -248,7 +227,7 @@ pub fn read_servers_json() -> Result<Vec<Server>, String> {
 }
 
 pub fn get_file_loc() -> Result<String, String> {
-    let servers_dir = get_servers_dir();
+    let servers_dir = get_app_folder();
     if let Some(path_str) = servers_dir.to_str() {
         Ok(path_str.to_owned())
     } else {
@@ -258,7 +237,7 @@ pub fn get_file_loc() -> Result<String, String> {
 
 
 pub fn update_server_field(server_id: &str, field: &str, value: &str) -> Result<(), String> {
-    let servers_dir = get_servers_dir();
+    let servers_dir = get_app_folder();
     let servers_json_path = servers_dir.join("servers.json");
 
     let servers_json_content = match fs::read_to_string(&servers_json_path) {
@@ -290,7 +269,7 @@ pub fn update_server_field(server_id: &str, field: &str, value: &str) -> Result<
 }
 
 pub fn remove_server(server_id: &str) -> Result<(),String> {
-    let servers_dir = get_servers_dir();
+    let servers_dir = get_app_folder();
     let server_folder = servers_dir.join("servers").join(server_id);
 
     fs::remove_dir_all(server_folder).map_err(|e| e.to_string())?;

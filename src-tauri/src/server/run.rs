@@ -1,6 +1,6 @@
 use crate::config::get::find_java_path;
 use crate::config::get::find_ram_configuration;
-use crate::files::server::get_servers_dir;
+use crate::files::get::get_server_folder;
 use std::path::PathBuf;
 use std::process::Stdio;
 use tokio::fs::File;
@@ -8,12 +8,13 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 use tokio::process::Command;
 use tokio::time::Duration;
 
+#[cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 pub async fn run_server_and_save_output(
     server_id: &str,
     server_type: &str,
 ) -> Result<bool, String> {
     println!("[run-server]: Starting server {}", server_id);
-    let server_folder = get_servers_dir().join("servers").join(server_id);
+    let server_folder = get_server_folder(server_id);
     let server_jar_path: PathBuf;
 
     match server_type {
@@ -51,7 +52,7 @@ pub async fn run_server_and_save_output(
         .spawn()
         .map_err(|e| e.to_string())?;
 
-    let mut process_id: u32 = 0;
+    let process_id: u32;
     
     loop {
         if let Some(pid) = process.id() {
@@ -157,9 +158,7 @@ pub async fn run_server_and_save_output(
 // }
 
 pub async fn kill_server_process(server_id: &str) -> Result<(), String> {
-    let pid_file_path = get_servers_dir()
-        .join("servers")
-        .join(server_id)
+    let pid_file_path = get_server_folder(server_id)
         .join("server_pid.txt");
 
     if !pid_file_path.exists() {

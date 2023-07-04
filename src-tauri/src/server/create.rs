@@ -1,23 +1,14 @@
+use crate::files::get::{ get_app_folder , get_libs_folder };
 use std::fs::{self, File};
 use std::io::{ Write};
 use std::process::{Command};
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use reqwest::{Client,Response};
 use semver::Version;
 use regex::Regex;
 use serde::de::DeserializeOwned;
 
-#[cfg(target_os = "windows")]
-fn get_servers_dir() -> PathBuf {
-    dirs::data_dir()
-        .expect("Failed to get the data directory")
-        .join("mc-svr-mng")
-}
-
-#[cfg(target_os = "linux")]
-const SERVERS_DIR: &str = "/etc/mc-svr-mng";
-
-async fn get_json<T: DeserializeOwned>(response: Response) -> Result<T, Box<dyn std::error::Error>> {
+async fn response_to_json<T: DeserializeOwned>(response: Response) -> Result<T, Box<dyn std::error::Error>> {
     let text = response.text().await?;
     let json = serde_json::from_str(&text)?;
     Ok(json)
@@ -26,7 +17,7 @@ async fn get_json<T: DeserializeOwned>(response: Response) -> Result<T, Box<dyn 
 pub async fn download_minecraft_server(server_folder: &Path, minecraft_version: &str) -> Result<(), String> {
     let version_manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
     let response = reqwest::get(version_manifest_url).await.map_err(|e| e.to_string())?;
-    let version_manifest: serde_json::Value = get_json(response).await.map_err(|e| e.to_string())?;
+    let version_manifest: serde_json::Value = response_to_json(response).await.map_err(|e| e.to_string())?;
     let version_info = version_manifest["versions"]
         .as_array()
         .and_then(|versions| {
@@ -38,7 +29,7 @@ pub async fn download_minecraft_server(server_folder: &Path, minecraft_version: 
         .ok_or("[download-minecraft-server]: Failed to find version information")?;
     println!("[download-minecraft-server]: Found version");
     let response = reqwest::get(version_info).await.map_err(|e| e.to_string())?;
-    let version_data: serde_json::Value = get_json(response).await.map_err(|e| e.to_string())?;
+    let version_data: serde_json::Value = response_to_json(response).await.map_err(|e| e.to_string())?;
     let server_download_url = version_data["downloads"]["server"]["url"]
         .as_str()
         .ok_or("[download-minecraft-server]: Failed to find server download URL").map_err(|e| e.to_string())?;
@@ -73,8 +64,7 @@ pub async fn check_and_update_quilt_installer() -> Result<(), String> {
 
             let installer_bytes = client.get(&download_url).send().await.map_err(|e| e.to_string())?.bytes().await.map_err(|e| e.to_string())?;
 
-            let servers_dir = get_servers_dir();
-            let libs_dir = servers_dir.join("libs");
+            let libs_dir = get_libs_folder();
             fs::create_dir_all(&libs_dir).map_err(|e| e.to_string())?;
 
             let installer_path = libs_dir.join(format!("quilt-installer-{}.jar", latest_version));
@@ -112,8 +102,7 @@ pub async fn check_and_update_fabric_installer() -> Result<(), String> {
 
             let installer_bytes = client.get(&download_url).send().await.map_err(|e| e.to_string())?.bytes().await.map_err(|e| e.to_string())?;
 
-            let servers_dir = get_servers_dir();
-            let libs_dir = servers_dir.join("libs");
+            let libs_dir = get_libs_folder();
             fs::create_dir_all(&libs_dir).map_err(|e| e.to_string())?;
 
             let installer_path = libs_dir.join(format!("fabric-installer-{}.jar", latest_version));
@@ -146,8 +135,7 @@ pub fn extract_versions(html: &str) -> Vec<Version> {
 }
 
 pub fn get_installed_quilt_installer_version() -> Option<Version> {
-    let servers_dir = get_servers_dir();
-    let libs_dir = servers_dir.join("libs");
+    let libs_dir = get_libs_folder();
     let installer_files = fs::read_dir(libs_dir.clone())
         .unwrap_or_else(|_| panic!("[get-quilt-installer]: Failed to read the libs directory: {:?}", libs_dir));
 
@@ -172,8 +160,7 @@ pub fn get_installed_quilt_installer_version() -> Option<Version> {
 }
 
 pub fn get_installed_fabric_installer_version() -> Option<Version> {
-    let servers_dir = get_servers_dir();
-    let libs_dir = servers_dir.join("libs");
+    let libs_dir = get_libs_folder();
     let installer_files = fs::read_dir(libs_dir.clone())
         .unwrap_or_else(|_| panic!("[get-fabric-installer]: Failed to read the libs directory: {:?}", libs_dir));
 
@@ -203,7 +190,7 @@ pub fn run_quilt_installer(
     minecraft_version: &str,
 ) -> Result<(), String> {
     let installer_file = format!("quilt-installer-{}.jar", installer_version);
-    let installer_path = get_servers_dir().join("libs").join(&installer_file);
+    let installer_path = get_libs_folder().join(&installer_file);
 
     let mut command = Command::new("java");
     command
@@ -232,7 +219,7 @@ pub fn run_fabric_installer(
     minecraft_version: &str,
 ) -> Result<(), String> {
     let installer_file = format!("fabric-installer-{}.jar", installer_version);
-    let installer_path = get_servers_dir().join("libs").join(&installer_file);
+    let installer_path = get_libs_folder().join(&installer_file);
 
     let mut command = Command::new("java");
     command

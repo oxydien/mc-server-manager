@@ -1,4 +1,4 @@
-use crate::files::server::get_servers_dir;
+use crate::files::get::{get_server_folder, get_app_folder};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::{self, File};
@@ -12,8 +12,7 @@ pub struct FileInfo {
 }
 
 pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, String> {
-    let server_dir = get_servers_dir();
-    let mut server_path = server_dir.join("servers").join(server_id);
+    let mut server_path = get_server_folder(server_id);
 
     if let Some(sub_path) = path {
         println!(
@@ -61,9 +60,7 @@ pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, Stri
 }
 
 pub fn read_file(file_path: &str, server_id: &str) -> Result<String, String> {
-    let full_path = get_servers_dir()
-        .join("servers")
-        .join(server_id)
+    let full_path = get_server_folder(server_id)
         .join(file_path);
     println!("[read-file]: {}", full_path.clone().display());
 
@@ -80,7 +77,7 @@ pub fn read_file(file_path: &str, server_id: &str) -> Result<String, String> {
 }
 
 pub fn write_file(file_path: &str, contents: &str, server_id: &str) -> Result<(), String> {
-    let server_dir = get_servers_dir().join("servers").join(server_id);
+    let server_dir = get_server_folder(server_id);
     let full_path = server_dir.join(file_path);
 
     match fs::File::create(&full_path) {
@@ -97,7 +94,7 @@ pub fn write_file(file_path: &str, contents: &str, server_id: &str) -> Result<()
 #[tauri::command]
 pub async fn open_file_or_explorer(server_id: &str, path: &str) -> Result<(), String> {
     let server_dir: std::path::PathBuf =
-        get_servers_dir().join("servers").join(server_id).join(path);
+        get_server_folder(server_id).join(path);
     Ok(open::that(server_dir).unwrap())
 }
 
@@ -105,7 +102,7 @@ pub async fn open_file_or_explorer(server_id: &str, path: &str) -> Result<(), St
 pub fn read_server_properties(server_id: &str) -> Result<String, String> {
     let server_dir = format!(
         "{}/servers/{}/server.properties",
-        get_servers_dir().display(),
+        get_app_folder().display(),
         server_id
     );
     let mut file = File::open(server_dir).map_err(|e| e.to_string())?;
@@ -135,7 +132,7 @@ pub fn read_server_properties(server_id: &str) -> Result<String, String> {
 pub fn write_server_properties(server_id: &str, json_string: &str) -> Result<(), String> {
     let server_dir = format!(
         "{}/servers/{}/server.properties",
-        get_servers_dir().display(),
+        get_app_folder().display(),
         server_id
     );
     let mut file = File::create(&server_dir).map_err(|e| e.to_string())?;

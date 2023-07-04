@@ -1,5 +1,5 @@
 use crate::config::get::get_settings;
-use crate::files::server::get_servers_dir;
+use crate::files::get::get_app_folder;
 use serde_json::{json, Value};
 use std::fs::File;
 use std::io::Write;
@@ -21,7 +21,7 @@ pub fn set_memory_m(memory_m: &str) -> Result<(), String> {
 }
 
 pub fn update_setting(setting_key: &str, setting_value: &str) -> Result<(), String> {
-    let appdata = get_servers_dir();
+    let appdata = get_app_folder();
     let settings_path = appdata.join("config.json");
 
     let mut content = get_settings()?;
