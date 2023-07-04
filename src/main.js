@@ -1,3 +1,4 @@
+import "./assets/css/omorphia.css";
 import "./assets/scss/global.scss";
 import App from "./App.vue";
 import { createApp } from 'vue';

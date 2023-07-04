@@ -18,6 +18,12 @@ $main-m: #0d2945;
 $main-hm: #0e84a5;
 $main-h: #2bb9e1;
 
+html {
+  --color-brand: #19a7ce;
+  --color-brand-highlight: #0d2945;
+  --color-brand-shadow: #2bb9e1;
+}
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -64,7 +70,9 @@ body {
       box-sizing: border-box;
       border-radius: $brr;
       .side-server {
-        display: block;
+        display: grid;
+        align-content: center;
+        justify-content: center;
         width: calc($nav_width - $margin - $padding);
         height: calc($nav_width - $margin - $padding);
         border-radius: $brr;
@@ -123,9 +131,15 @@ body {
           border-radius: $brr;
           object-fit: cover;
         }
+        svg {
+          height: 30px;
+          width: 30px;
+        }
       }
       .home-button {
-        display: block;
+        display: grid;
+        align-content: center;
+        justify-content: center;
         width: calc($nav_width - $margin - $padding);
         height: calc($nav_width - $margin - $padding);
         border-radius: $brr;
@@ -133,6 +147,11 @@ body {
         color: $txt-m;
         transition: all 200ms;
         cursor: pointer;
+
+        svg {
+          height: 30px;
+          width: 30px;
+        }
   
         &:hover {
           background-color: $fg-m;

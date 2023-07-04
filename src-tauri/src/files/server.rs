@@ -69,7 +69,7 @@ fn create_server_info_json(
     let server_info_data = json!({
         "id": id,
         "name": server_name,
-        "server_type": server_type,
+        "s_type": server_type,
         "mc_version": mc_version,
         "mods": [],
         "image": image,
@@ -152,7 +152,7 @@ pub async fn create_server(server_name: &str, mc_version: &str, server_type: &st
         "id": sanitize_folder_name(server_name),
         "name": server_name,
         "mc_version": mc_version,
-        "server_type": server_type,
+        "s_type": server_type,
         "image": image,
     });
 

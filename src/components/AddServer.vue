@@ -1,6 +1,5 @@
 <style lang="scss" scoped>
 @import "../assets/scss/global.scss";
-
 main {
   background-color: $main-am !important;
   opacity: 0.8;
@@ -62,405 +61,267 @@ main {
     0% {
       background-position: 0 0, 0 0, 30px 54px, 30px 54px, 0 0, 30px 54px, 0 0;
     }
-    100% { 
+    100% {
       background-position: calc(0px - 6000px) 1080px, calc(0px - 6000px) 1080px,
-        calc(30px - 6000px) calc(54px + 1080px), calc(30px - 6000px) calc(54px + 1080px),
-        calc(0px - 6000px) 1080px, calc(30px - 6000px) calc(54px + 1080px), calc(0px - 6000px) 1080px;
-    }
-  }
-
-  .wrapper {
-    position: relative;
-    top: 40%;
-    transform: translateY(-50%);
-  }
-  .form {
-    background-color: $fg-h;
-    width: fit-content;
-    padding: 1rem;
-    border-radius: $brr;
-    margin: 0 auto;
-    min-width: 200px;
-  }
-  h2 {
-    font-size: clamp(0.8rem, 5vw, 3rem);
-    margin: 0;
-    text-align: center;
-    text-shadow: 0 0 10px black;
-  }
-  select,
-  button,
-  input {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 1.1rem;
-    display: block;
-    margin: 10px auto 0 auto;
-    width: 100%;
-    overflow: hidden;
-
-    color: $txt;
-    background-color: $fg-a;
-    padding: 0.505rem 0.808rem;
-    border: none;
-    border-radius: 6px;
-    box-sizing: border-box;
-  }
-  select,
-  button {
-    cursor: pointer;
-  }
-
-  .image-input {
-    width: fit-content;
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    border-radius: $brr;
-    background-color: $fg-a;
-
-    padding: 10px;
-    input,
-    button {
-      margin: 0;
-      width: 200px;
-      background-color: $fg-ma;
-    }
-    .image-container {
-      width: 100px;
-      height: 100px;
-      background-color: $fg-h;
-      border-radius: $brr;
-      position: relative;
-
-      &::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        background-color: $bg-a;
-        background-repeat: no-repeat;
-        background-size: cover;
-        transition: opacity 150ms;
-        background-image: url(data:image/svg+xml,%3Csvg%20data-v-7a7a37b1%3D%22%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2024%2024%22%20style%3D%22width%3A%20100%25%3B%20height%3A%20100%25%3B%22%3E%3Cpath%20data-v-7a7a37b1%3D%22%22%20fill%3D%22white%22%20d%3D%22M19%2013h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E);
-        border-radius: $brr;
-        opacity: 0;
-      }
-
-      &:hover {
-        &::after {
-          opacity: 1;
-        }
-        svg {
-          color: $main-h;
-        }
-      }
-
-      img,
-      svg {
-        object-fit: cover;
-        width: 100%;
-        height: 100%;
-        border-radius: $brr;
-      }
-    }
-  }
-  .submit-button {
-    transition: all 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
-    background-color: $main-am;
-    &:hover {
-      background-color: $main-m;
-    }
-    &:disabled {
-      background-color: $main-m;
-      cursor: not-allowed;
+        calc(30px - 6000px) calc(54px + 1080px),
+        calc(30px - 6000px) calc(54px + 1080px), calc(0px - 6000px) 1080px,
+        calc(30px - 6000px) calc(54px + 1080px), calc(0px - 6000px) 1080px;
     }
   }
 }
-.server-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+
+.wrapper {
+  padding: 5px;
   overflow: hidden;
-  background-color: $fg-a;
-  padding: 0.5rem;
-  box-sizing: border-box;
-  border-radius: $brr;
-  margin-bottom: 10px;
-  cursor: pointer;
-  svg,
-  img {
-    width: 50px;
-    height: 50px;
-    background-color: $fg-ma;
-    border-radius: $brr;
-    object-fit: cover;
+  position: relative;
+
+  .pages {
+    .page {
+      .loader-versions label,
+      & > label {
+        display: block;
+        font-weight: 600;
+        font-size: 1.15rem;
+        margin: 8px 0 5px 0;
+      }
+      .eula,
+      .image-input {
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        background-color: rgba(67, 73, 86, 0.42);
+
+        .inputs {
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: space-between;
+        }
+      }
+      .eula {
+        justify-content: space-between;
+      }
+      .show-snapshots {
+        display: inline-flex;
+        margin-left: 5px;
+        button {
+          border: none !important;
+          appearance: none !important;
+        }
+      }
+
+      &.information {
+        span {
+          display: inline-block;
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin: 5px 0;
+        }
+      }
+    }
   }
-  p {
-    white-space: nowrap;
-    text-overflow: ellipsis;
+
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    padding-top: 5px;
+    margin-top: 5px;
+    border-top: 1px solid $bg;
   }
 }
 </style>
 
 <template>
   <main>
-    <div class="wrapper">
-      <h2>Create new server</h2>
-      <div class="form" v-if="creatingServer">
-        <h3 style="text-align: center; margin-top: 0">
-          Creating
-          <code
-            style="
-              background-color: #0000002a;
-              border-radius: 5px;
-              padding: 2px;
-            "
-            >{{ serverName }}</code
-          >
-          server.
-        </h3>
-        <LoadingCube></LoadingCube>
-      </div>
-      <div class="form" v-else-if="failedToCreate">
-        <h3>There was error when creating your server:</h3>
-        <p style="max-width: 500px">{{ errorMessage }}</p>
-      </div>
-      <div class="form" v-else-if="successfullyCreated">
-        <h3>Successfully created your server</h3>
-        <div class="server-info" style="cursor: default">
-          <div class="image-holder">
-            <img v-if="imageSrc" :src="imageSrc" alt="" />
-            <svg
-              v-else
-              width="512"
-              height="512"
-              viewBox="0 0 512 512"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M96.7593 163C102.259 145.5 233.259 87 252.259 87C271.259 87 394.259 143 409.759 163M96.7593 163C91.2593 180.5 92.2593 314 96.7593 332.5C101.259 351 224.259 425.5 252.259 425.5M96.7593 163C125.759 198 220.759 244.5 252.259 244.5M409.759 163C422.759 185.5 420.759 313.5 409.759 332.5C398.759 351.5 280.259 425.5 252.259 425.5M409.759 163C378.759 204 286.259 247 252.259 244.5M252.259 425.5C252.259 354.815 252.259 315.185 252.259 244.5"
-                stroke="currentColor"
-                stroke-width="42"
-              />
-            </svg>
-          </div>
-          <p :title="serverName">
-            {{ serverName }}
-          </p>
-        </div>
-      </div>
-      <section class="form" v-else>
-        <div v-show="page === 1">
-          <label for="serverName"> Name: </label>
-          <input
-            placeholder="Server name..."
-            maxlength="50"
-            style="margin-bottom: 10px"
-            type="text"
-            id="serverName"
-            v-model="serverName"
-            autocomplete="off"
-          />
-          <span> Icon: </span>
-          <div class="image-input">
-            <div
-              class="image-container"
-              style="cursor: pointer"
-              @click="openFileWindow"
-            >
-              <img
-                :src="imageSrc"
-                v-if="imageSrc"
-                @error="replaceWithSVG"
-                :key="imageSrc"
-              />
-              <svg
-                v-else
-                width="512"
-                height="512"
-                viewBox="0 0 512 512"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M96.7593 163C102.259 145.5 233.259 87 252.259 87C271.259 87 394.259 143 409.759 163M96.7593 163C91.2593 180.5 92.2593 314 96.7593 332.5C101.259 351 224.259 425.5 252.259 425.5M96.7593 163C125.759 198 220.759 244.5 252.259 244.5M409.759 163C422.759 185.5 420.759 313.5 409.759 332.5C398.759 351.5 280.259 425.5 252.259 425.5M409.759 163C378.759 204 286.259 247 252.259 244.5M252.259 425.5C252.259 354.815 252.259 315.185 252.259 244.5"
-                  stroke="currentColor"
-                  stroke-width="42"
-                />
-              </svg>
-            </div>
-            <div class="inputs">
-              <button
-                id="imageFileButton"
-                ref="imageFileButton"
-                @click="openFileWindow"
-              >
-                Click to upload a file
-              </button>
-
-              <div
-                style="
-                  height: 10px;
-                  width: 0px;
-                  overflow: hidden;
-                  visibility: hidden;
-                "
-              >
-                <input
-                  ref="imageFileInput"
-                  type="file"
-                  accept="image/*"
-                  @change="updateImage"
-                />
-              </div>
-              <input
-                type="text"
-                ref="imageURLInput"
-                placeholder="Image URL"
-                @change="imageURL"
-              />
-            </div>
-          </div>
-        </div>
-        <div v-show="page === 2">
-          <div class="server-info" @click="prevPage">
-            <div class="image-holder">
-              <img v-if="imageSrc" :src="imageSrc" alt="" />
-              <svg
-                v-else
-                width="512"
-                height="512"
-                viewBox="0 0 512 512"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M96.7593 163C102.259 145.5 233.259 87 252.259 87C271.259 87 394.259 143 409.759 163M96.7593 163C91.2593 180.5 92.2593 314 96.7593 332.5C101.259 351 224.259 425.5 252.259 425.5M96.7593 163C125.759 198 220.759 244.5 252.259 244.5M409.759 163C422.759 185.5 420.759 313.5 409.759 332.5C398.759 351.5 280.259 425.5 252.259 425.5M409.759 163C378.759 204 286.259 247 252.259 244.5M252.259 425.5C252.259 354.815 252.259 315.185 252.259 244.5"
-                  stroke="currentColor"
-                  stroke-width="42"
-                />
-              </svg>
-            </div>
-            <p :title="serverName">
-              {{ serverName }}
-            </p>
-          </div>
-          <span>Server type:</span>
-          <select
-            name="serverType"
-            v-model="serverType"
-            id="serverType"
-            ref="serverType"
-          >
-            <option value="vanilla">Vanilla</option>
-            <option value="quilt">Quilt</option>
-            <option value="fabric">Fabric</option>
-          </select>
-          <span style="margin-top: 10px; display: block"
-            >Minecraft version:</span
-          >
-          <div style="display: flex">
-            <select
-              name="serverVersion"
-              id="serverVersion"
-              ref="serverVersion"
-              style="display: inline-block"
-              v-model="serverVersion"
-              :key="showSnapshots"
-            >
-              <option
-                :value="version.id"
-                v-for="(version, index) in filteredVersions()"
-                :key="index"
-              >
-                {{ version.id }}
-              </option>
-            </select>
-            <label
-              style="margin: 20px 10px 0; white-space: nowrap"
-              for="showSnapshots"
-              >Show snapshots</label
-            >
-            <input
-              type="checkbox"
-              style="display: inline; margin: 10px 0 0; width: 30px"
-              id="showSnapshots"
-              v-model="showSnapshots"
-            />
-          </div>
-        </div>
-        <div v-show="page === 3">
-          <div class="server-info" @click="prevPage">
-            <div class="image-holder">
-              <img v-if="imageSrc" :src="imageSrc" alt="" />
-              <svg
-                v-else
-                width="512"
-                height="512"
-                viewBox="0 0 512 512"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M96.7593 163C102.259 145.5 233.259 87 252.259 87C271.259 87 394.259 143 409.759 163M96.7593 163C91.2593 180.5 92.2593 314 96.7593 332.5C101.259 351 224.259 425.5 252.259 425.5M96.7593 163C125.759 198 220.759 244.5 252.259 244.5M409.759 163C422.759 185.5 420.759 313.5 409.759 332.5C398.759 351.5 280.259 425.5 252.259 425.5M409.759 163C378.759 204 286.259 247 252.259 244.5M252.259 425.5C252.259 354.815 252.259 315.185 252.259 244.5"
-                  stroke="currentColor"
-                  stroke-width="42"
-                />
-              </svg>
-            </div>
-            <p :title="serverName">
-              {{ serverName }}
-            </p>
-          </div>
-          <p>
-            Server type: <b>{{ serverType }}</b>
-          </p>
-          <p>
-            Minecraft version: <b>{{ serverVersion }}</b>
-          </p>
-          <p>
-            <label for="agreeToEula">Agree to mojang's Eula: </label
-            ><input
-              id="agreeToEula"
-              type="checkbox"
-              style="display: inline; margin: 0; width: 15px; height: 15px"
-              v-model="agreeToEula"
-            />
-          </p>
-          <hr />
-          <span>Do you want to create this server?</span>
-        </div>
-        <button
-          type="submit"
-          ref="submitButton"
-          @click="nextPage"
-          class="submit-button"
-          :disabled="
-            (page === 1 && serverName === '') || (page === 3 && !agreeToEula)
-          "
+    <Modal :closable="false" :header="getModalHeader" ref="modal">
+      <div class="wrapper">
+        <div
+          class="pages"
+          v-if="!creatingServer && !successfullyCreated && !failedToCreate"
         >
-          {{ page != 3 ? "Next.." : "Yes - CREATE IT!" }}
-        </button>
-      </section>
-    </div>
+          <div v-show="currentPage === 1" class="page">
+            <label for="serverName" style="margin-top: 0">Server name</label>
+            <div class="iconified-input">
+              <GlobeIcon />
+              <input
+                v-model="serverName"
+                type="text"
+                id="serverName"
+                placeholder="Server name..."
+                maxlength="32"
+              />
+              <Button @click="() => (serverName = '')">
+                <XIcon />
+              </Button>
+            </div>
+            <label for="serverIcon">Server icon</label>
+            <Card class="image-input">
+              <Avatar size="md" :src="imageSrc"></Avatar>
+              <div class="inputs">
+                <FileInput
+                  :max-size="2356221"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
+                  class="btn"
+                  :prompt="imagePrompt"
+                  @change="updateImage"
+                >
+                  <UploadIcon />
+                </FileInput>
+                <div class="iconified-input">
+                  <LinkIcon />
+                  <input
+                    v-model="imageSrc"
+                    type="text"
+                    id="serverIcon"
+                    placeholder="Image url..."
+                  />
+                  <Button @click="() => (imageSrc = '')">
+                    <XIcon />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+            <label for="serverType">Server type</label>
+            <Chips
+              v-model="serverType"
+              name="serverType"
+              @update:modelValue="serverTypeChange"
+              :items="['vanilla', 'quilt', 'fabric']"
+              placeholder="Choose server type..."
+            />
+            <label for="serverVersion">Server version</label>
+            <DropdownSelect
+              v-model="serverVersion"
+              name="serverVersion"
+              :options="filteredVersions"
+              placeholder="Choose server type..."
+              render-up
+            />
+            <Checkbox class="show-snapshots" v-model="showSnapshots"
+              >Show snapshots</Checkbox
+            >
+            <div v-if="serverType !== 'vanilla'" class="loader-versions">
+              <label for="serverType">Loader version</label>
+              <DropdownSelect
+                v-model="loaderVersion"
+                v-if="serverType === 'fabric'"
+                name="loaderVersion"
+                :options="fabricVersions"
+                placeholder="Choose server type..."
+                render-up
+              />
+              <DropdownSelect
+                v-model="loaderVersion"
+                v-if="serverType === 'quilt'"
+                name="loaderVersion"
+                :options="quiltVersions"
+                placeholder="Choose server type..."
+                render-up
+              />
+            </div>
+          </div>
+          <div class="page information" v-if="currentPage === 2">
+            <Avatar size="md" style="float: right" :src="imageSrc"></Avatar>
+            <span>Server name</span>: {{ serverName }}<br />
+            <span>Minecraft version</span>: {{ serverVersion }}<br />
+            <span>Server type</span>: {{ serverType }}<br />
+            <div v-if="serverType !== 'vanilla'">
+              <span>Loader version</span>: {{ loaderVersion }}
+            </div>
+            <Card class="eula">
+              <span
+                >Do you agree with mojang's
+                <a href="https://www.minecraft.net/en-us/eula">eula</a></span
+              >
+              <Toggle
+                v-model="agreeToEula"
+                :checked="agreeToEula"
+                id="eulaButton"
+              ></Toggle>
+            </Card>
+          </div>
+        </div>
+        <div v-else-if="creatingServer">
+          <LoadingCube></LoadingCube>
+        </div>
+        <div v-else-if="successfullyCreated">
+          <Card
+            ><Badge color="green" type="Success" /> Successfully created server
+            {{ serverName }}</Card
+          >
+        </div>
+        <div v-else-if="failedToCreate">
+          <Card
+            ><Badge color="red" type="fail" /> Failed to create server
+            {{ serverName }}</Card
+          >
+          {{ errorMessage }}
+        </div>
+        <div
+          class="navigation"
+          v-if="!creatingServer && !successfullyCreated && !failedToCreate"
+        >
+          <Button
+            color="secondary"
+            @click="prevPage"
+            iconOnly
+            :disabled="currentPage <= 1"
+          >
+            <LeftArrowIcon></LeftArrowIcon>
+          </Button>
+          {{ currentPage }}
+          <Button
+            color="primary"
+            @click="nextPage"
+            :disabled="serverName === '' || (currentPage === 2 && !agreeToEula)"
+            :iconOnly="currentPage !== 2"
+          >
+            <RightArrowIcon></RightArrowIcon>
+            <span v-if="currentPage === 2">Create</span>
+          </Button>
+        </div>
+      </div>
+    </Modal>
+    <Notifications ref="notifsContainer" />
   </main>
 </template>
 
 <script>
 import { invoke } from "@tauri-apps/api/tauri";
 import LoadingCube from "./loading.vue";
+import {
+  FileInput,
+  Badge,
+  Card,
+  Checkbox,
+  Avatar,
+  DropdownSelect,
+  Chips,
+  GlobeIcon,
+  Toggle,
+  LinkIcon,
+  UploadIcon,
+  XIcon,
+  Button,
+  Modal,
+  RightArrowIcon,
+  Notifications,
+  LeftArrowIcon,
+} from "omorphia";
 export default {
   name: "AddServer",
   data() {
     return {
+      currentPage: 1,
       serverName: "",
       imageSrc: "",
-      page: 1,
+      imagePrompt: "Upload icon",
       minecraftVersions: [],
+      quiltVersions: [],
+      fabricVersions: [],
       serverVersion: "",
+      loaderVersion: "",
       serverType: "vanilla",
       showSnapshots: false,
       agreeToEula: false,
@@ -471,45 +332,75 @@ export default {
     };
   },
   components: {
+    Avatar,
+    Badge,
+    Card,
+    FileInput,
     LoadingCube,
+    DropdownSelect,
+    Checkbox,
+    RightArrowIcon,
+    LeftArrowIcon,
+    Chips,
+    Toggle,
+    UploadIcon,
+    GlobeIcon,
+    LinkIcon,
+    XIcon,
+    Button,
+    Notifications,
+    Modal,
   },
   mounted() {
-    this.page = 1;
+    this.currentPage = 1;
+    this.openServerModal();
     this.loadMinecraftVersions();
+    this.loadQuiltVersions();
+    this.loadFabricVersions();
   },
   methods: {
-    nextPage() {
-      if (this.page != 3) {
-        this.page++;
-        return;
-      }
-      this.$refs["submitButton"].disabled = true;
-      this.createServer();
+    openServerModal() {
+      this.$refs.modal.show();
     },
     prevPage() {
-      this.page--;
+      this.currentPage = Math.max(1, this.currentPage - 1);
     },
-    openFileWindow() {
-      this.$refs["imageFileInput"].click();
+    nextPage() {
+      if (this.currentPage === 2) {
+        this.createServer();
+      }
+      this.currentPage = Math.min(2, this.currentPage + 1);
     },
     updateImage(event) {
-      const file = event.target.files[0];
+      const file = event[0];
       const fileName = file.name;
-      this.$refs["imageFileButton"].innerHTML = fileName;
+      const shortenedName = this.shortenFileName(fileName, 18);
+
+      this.imagePrompt = shortenedName;
+
       const reader = new FileReader();
       reader.onload = (e) => {
         this.imageSrc = e.target.result;
       };
       reader.readAsDataURL(file);
     },
-    imageURL() {
-      this.imageSrc = this.$refs.imageURLInput.value;
-    },
-    imageURL() {
-      this.imageSrc = this.$refs["imageURLInput"].value;
-    },
-    replaceWithSVG() {
-      this.imageSrc = null;
+
+    shortenFileName(fileName, maxLength) {
+      if (fileName.length <= maxLength) {
+        return fileName;
+      }
+
+      const baseNameLength = maxLength;
+      const firstCharacters = fileName.substring(
+        0,
+        Math.ceil(baseNameLength / 2)
+      );
+      const lastCharacters = fileName.substring(
+        fileName.length - Math.floor(baseNameLength / 2)
+      );
+      const shortenedName = firstCharacters + "..." + lastCharacters;
+
+      return shortenedName;
     },
     loadMinecraftVersions() {
       fetch("https://launchermeta.mojang.com/mc/game/version_manifest.json")
@@ -525,34 +416,96 @@ export default {
           );
         });
     },
-    filteredVersions() {
-      if (this.showSnapshots) {
-        return this.minecraftVersions;
-      }
-      return this.minecraftVersions.filter(
-        (version) => version.type === "release"
-      );
+    loadQuiltVersions() {
+      fetch(
+        "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/maven-metadata.xml"
+      )
+        .then((response) => response.text())
+        .then((xmlText) => {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+          const versionNodes = xmlDoc.getElementsByTagName("version");
+          const quiltVersions = Array.from(versionNodes).map(
+            (node) => node.textContent
+          );
+
+          this.quiltVersions = quiltVersions.reverse();
+        })
+        .catch((error) => {
+          console.error("Error loading Quilt versions:", error);
+        });
+    },
+    loadFabricVersions() {
+      fetch(
+        "https://maven.fabricmc.net/net/fabricmc/fabric-loader/maven-metadata.xml"
+      )
+        .then((response) => response.text())
+        .then((xmlText) => {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+          const versionNodes = xmlDoc.getElementsByTagName("version");
+          const fabricVersions = Array.from(versionNodes).map(
+            (node) => node.textContent
+          );
+
+          this.fabricVersions = fabricVersions.reverse();
+        })
+        .catch((error) => {
+          console.error("Error loading Quilt versions:", error);
+        });
+    },
+    addNotification(type,text) {
+      this.$refs.notifsContainer.addNotification({
+        title: "Server Creation",
+        text: text,
+        type,
+      });
+    },
+    serverTypeChange() {
+      if (this.serverType === "quilt")
+        this.loaderVersion = this.quiltVersions[0];
+      if (this.serverType === "fabric")
+        this.loaderVersion = this.fabricVersions[0];
     },
     async createServer() {
       this.creatingServer = true;
       let input = {
         name: this.serverName,
-        serverType: this.serverType,
+        serverType: this.serverType.toLowerCase(),
         mcVersion: this.serverVersion,
         image: this.imageSrc,
-      };
+      };// The loader version is not implemented in the Rust code
       console.log(input);
       await invoke("add_server_command", input).then((response) => {
         console.log(response);
         if (response.startsWith("[success]")) {
           this.creatingServer = false;
           this.successfullyCreated = true;
+          this.addNotification('success',response)
         } else {
           this.creatingServer = false;
           this.failedToCreate = true;
           this.errorMessage = response;
+          this.addNotification('error',response)
         }
       });
+    },
+  },
+  computed: {
+    getModalHeader() {
+      if (this.creatingServer) return "Create server - creating";
+      else if (this.currentPage === 1) return "Create server - info";
+      else if (this.currentPage === 2)
+        return "Create server - " + this.serverName;
+      else return "Create server - ??";
+    },
+    filteredVersions() {
+      if (this.showSnapshots) {
+        return this.minecraftVersions.map((version) => version.id);
+      }
+      return this.minecraftVersions
+        .filter((version) => version.type === "release")
+        .map((version) => version.id);
     },
   },
 };
