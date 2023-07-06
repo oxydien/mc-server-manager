@@ -3,24 +3,6 @@
 
 .save-settings {
   float: right;
-  background-color: $main;
-  border: none;
-  font-size: 1.3rem;
-  color: $txt-h;
-  border-radius: 5px;
-  padding: 0.3rem 0.5rem;
-  cursor: pointer;
-
-  svg {
-    float: left;
-    margin-right: 2px;
-  }
-
-  &:disabled {
-    background-color: $main-m;
-    color: $txt-m;
-    cursor: not-allowed;
-  }
 }
 h1 {
   margin: 0 auto;
@@ -47,21 +29,11 @@ h1 {
       display: block;
       margin: 8px 0 5px 0;
     }
-
-    input {
-      display: block;
+    .iconified-input {
       width: 100%;
-      font-size: 1.3rem;
-      color: $txt-m;
-      border: none;
-      padding: 0.375rem 0.532rem;
-      border-radius: 5px;
-      background-color: $fg-a;
-      box-sizing: border-box;
-
-      &:focus {
-        color: $txt-h;
-      }
+    }
+    input {
+      padding-left: 10px;
     }
   }
 }
@@ -69,23 +41,15 @@ h1 {
 
 <template>
   <main>
-    <button class="save-settings" :disabled="!hasChanges" @click="saveConfig">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.828a2 2 0 0 0-.586-1.414l-1.828-1.828A2 2 0 0 0 16.172 4H15M8 4v4a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V4M8 4h7M7 17v-3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3"
-        /></svg>
+    <Button
+      color="primary"
+      class="save-settings"
+      :disabled="!hasChanges"
+      @click="saveConfig"
+    >
+      <SaveIcon />
       Save
-    </button>
+    </Button>
     <h1>Settings</h1>
     <hr />
     <div class="form" :key="sortedSettingsJson">
@@ -94,21 +58,26 @@ h1 {
         v-for="(setting, key) in sortedSettingsJson"
         :key="key"
       >
-        <label :for="key">{{ settingsDictionary[key] }}:</label>
-        <input
-          type="text"
-          :id="key"
-          :placeholder="'Enter ' + key + '..'"
-          v-model="modifiedSettingsJson[key]"
-          @input="checkIfChanged"
-        />
+        <label :for="key">{{ settingsDictionary[key] }}:{{ modifiedSettingsJson[key] }}</label>
+        <div class="iconified-input">
+          <input
+            v-model="modifiedSettingsJson[key]"
+            @input="checkIfChanged"
+            type="text"
+          />
+          <Button @click="() => (modifiedSettingsJson[key] = '')">
+            <XIcon />
+          </Button>
+        </div>
       </div>
     </div>
+    <Notifications ref="notifsContainer" />
   </main>
 </template>
 
 <script>
 import { invoke } from "@tauri-apps/api/tauri";
+import { Button, SaveIcon, XIcon, Notifications } from "omorphia";
 
 export default {
   name: "SettingsPage",
@@ -124,6 +93,12 @@ export default {
         memory_m: "Java max memory in MB (Xmx)",
       },
     };
+  },
+  components: {
+    Button,
+    SaveIcon,
+    Notifications,
+    XIcon,
   },
   mounted() {
     this.getSettings();
@@ -145,7 +120,11 @@ export default {
   methods: {
     async getSettings() {
       const response = JSON.parse(await invoke("get_config_command"));
-      console.log(response);
+      this.$refs.notifsContainer.addNotification({
+        title: "Get settings",
+        text: JSON.stringify(response),
+        type: "info",
+      });
       this.settingsJson = response;
       this.modifiedSettingsJson = JSON.parse(JSON.stringify(response));
     },
@@ -154,16 +133,25 @@ export default {
         if (
           Object.prototype.hasOwnProperty.call(this.modifiedSettingsJson, key)
         ) {
-          const value = this.modifiedSettingsJson[key].value;
-          await invoke("set_config_command", { name: key, value });
+          const value = this.modifiedSettingsJson[key];
+          let response = await invoke("set_config_command", {
+            name: key,
+            value,
+          });
+          if (response != null) {
+            this.$refs.notifsContainer.addNotification({
+              title: "Set settings " + key,
+              text: JSON.stringify(response),
+              type: "error",
+            });
+          }
         }
       }
       this.hasChanges = false;
     },
     checkIfChanged() {
       this.hasChanges = Object.keys(this.modifiedSettingsJson).some(
-        (key) =>
-          this.modifiedSettingsJson[key] !== this.settingsJson[key]
+        (key) => this.modifiedSettingsJson[key] !== this.settingsJson[key]
       );
     },
   },
