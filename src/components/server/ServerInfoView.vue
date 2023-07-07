@@ -401,6 +401,9 @@ export default {
         this.originalServer.memory_m = parseInt(response.memory_m);
       }
     },
+    openLink(link) {
+      window.open(link, "_blank");
+    },
     showDelete() {
       this.$refs.deleteModal.show();
     },
