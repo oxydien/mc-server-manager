@@ -203,7 +203,7 @@
 </template>
 
 <script>
-import ServerInfo from "./serverInfo.vue";
+import ServerInfo from "./ServerInfoView.vue";
 import ConsoleView from "./LiveLogView.vue";
 import FileSystem from "./files.vue";
 import PropertiesEditor from "./propertiesEditor.vue";

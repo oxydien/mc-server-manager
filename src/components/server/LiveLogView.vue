@@ -110,9 +110,18 @@
             capabilities.
           </p>
           <blockquote>
-            If you have a critical need for this feature, here's a workaround: Once the server starts, it opens a white console window where you can enter your commands.
+            If you have a critical need for this feature, here's a workaround:
+            Once the server starts, it opens a white console window where you
+            can enter your commands.
           </blockquote>
-          <Button @click="openLink('https://github.com/oxydien/mc-server-manager/blob/main/src-tauri/src/server/run.rs#L12')"><LinkIcon />Github link</Button>
+          <Button
+            @click="
+              openLink(
+                'https://github.com/oxydien/mc-server-manager/blob/main/src-tauri/src/server/run.rs#L12'
+              )
+            "
+            ><LinkIcon />Github link</Button
+          >
         </div>
       </Modal>
     </div>
@@ -178,7 +187,7 @@ export default {
       this.serverCommand = "";
     },
     openLink(link) {
-      window.open(link, '_blank')
+      window.open(link, "_blank");
     },
     addNotification(title, message, type) {
       this.$refs.notifsContainer.addNotification({
@@ -246,7 +255,13 @@ export default {
         // Wrap each line with span element
         highlightedText = highlightedText
           .split("\n")
-          .map((line) => `<span class="no-wrap">${line}</span>`)
+          .map((line) => {
+            if (line.trim() === "") {
+              return line; // Skip empty lines
+            } else {
+              return `<span class="no-wrap">${line}</span>`;
+            }
+          })
           .join("\n");
         return highlightedText;
       }

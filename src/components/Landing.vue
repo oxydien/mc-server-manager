@@ -127,8 +127,6 @@ main {
           <Avatar
             size="md"
             :src="server.image"
-            v-if="server.image"
-            @error="replaceWithSVG(index)"
             alt=""
           />
           {{ server.name }}
