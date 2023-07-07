@@ -94,8 +94,8 @@
         <Avatar size="lg" :src="serverInfo.image" />
         <h3>{{ serverInfo.name || "loading..." }}</h3>
         <p>
-          {{ serverInfo.server_type || "loa" }}
-          <ServerTypeIcon :type="serverInfo.server_type || 'null'" /> -
+          {{ serverInfo.s_type || "loa" }}
+          <ServerTypeIcon :type="serverInfo.s_type || 'null'" /> -
           {{ serverInfo.mc_version || "ding..." }}
         </p>
         <div class="buttons">
@@ -119,7 +119,7 @@
           :color="page == 0 ? 'primary' : ''"
         >
           <FileIcon />
-          Live Log
+          Live log
         </Button>
         <Button
           @click="goToPage(1)"
@@ -148,13 +148,13 @@
         <Button
           @click="goToPage(9)"
           v-if="
-            serverInfo.server_type == 'quilt' ||
-            serverInfo.server_type == 'fabric'
+            serverInfo.s_type == 'quilt' ||
+            serverInfo.s_type == 'fabric'
           "
           class="page"
           :color="page == 9 ? 'primary' : ''"
         >
-          <ServerTypeIcon :type="serverInfo.server_type" />
+          <ServerTypeIcon :type="serverInfo.s_type" />
           Mods
         </Button>
       </div>
@@ -187,14 +187,14 @@
       <div
         v-show="page == 9"
         v-if="
-          serverInfo.server_type == 'quilt' ||
-          serverInfo.server_type == 'fabric'
+          serverInfo.s_type == 'quilt' ||
+          serverInfo.s_type == 'fabric'
         "
       >
         <!-- <ModrinthMods
           :serverId="serverid"
-          :key="serverid + serverInfo.server_type + serverInfo.mc_version"
-          :serverType="serverInfo.server_type"
+          :key="serverid + serverInfo.s_type + serverInfo.mc_version"
+          :serverType="serverInfo.s_type"
           :serverVersion="serverInfo.mc_version"
         ></ModrinthMods> -->
       </div>
@@ -204,7 +204,7 @@
 
 <script>
 import ServerInfo from "./serverInfo.vue";
-import ConsoleView from "./console.vue";
+import ConsoleView from "./LiveLogView.vue";
 import FileSystem from "./files.vue";
 import PropertiesEditor from "./propertiesEditor.vue";
 // import ModrinthMods from "./downloadMods.vue";
@@ -272,7 +272,7 @@ export default {
       console.log(
         await invoke("start_server_command", {
           serverId: this.serverid,
-          serverType: this.serverInfo.server_type,
+          serverType: this.serverInfo.s_type,
         })
       );
     },
