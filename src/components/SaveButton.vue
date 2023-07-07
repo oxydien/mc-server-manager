@@ -26,6 +26,7 @@
 
 <template>
   <button
+    :disabled="props.disabled"
     class="btn icon-only"
     :class="{
       'success': props.success,
@@ -60,6 +61,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
 })
 
 defineEmits(['clicked'])

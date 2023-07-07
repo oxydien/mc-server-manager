@@ -206,7 +206,7 @@
 import ServerInfo from "./ServerInfoView.vue";
 import ConsoleView from "./LiveLogView.vue";
 import FileSystem from "./files.vue";
-import PropertiesEditor from "./propertiesEditor.vue";
+import PropertiesEditor from "./PropertyEditorView.vue";
 // import ModrinthMods from "./downloadMods.vue";
 import ServerTypeIcon from "../icons/ServerTypeIcon.vue";
 import { invoke } from "@tauri-apps/api/tauri";
