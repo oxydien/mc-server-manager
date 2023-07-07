@@ -191,12 +191,12 @@
           serverInfo.s_type == 'fabric'
         "
       >
-        <!-- <ModrinthMods
+        <ModrinthMods
           :serverId="serverid"
           :key="serverid + serverInfo.s_type + serverInfo.mc_version"
           :serverType="serverInfo.s_type"
           :serverVersion="serverInfo.mc_version"
-        ></ModrinthMods> -->
+        ></ModrinthMods>
       </div>
     </div>
   </main>
@@ -207,7 +207,7 @@ import ServerInfo from "./ServerInfoView.vue";
 import ConsoleView from "./LiveLogView.vue";
 import FileSystem from "./files.vue";
 import PropertiesEditor from "./PropertyEditorView.vue";
-// import ModrinthMods from "./downloadMods.vue";
+import ModrinthMods from "./downloadMods.vue";
 import ServerTypeIcon from "../icons/ServerTypeIcon.vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import {
@@ -236,7 +236,7 @@ export default {
     ConsoleView,
     FileSystem,
     PropertiesEditor,
-    // ModrinthMods,
+    ModrinthMods,
     Avatar,
     ServerTypeIcon,
     PlayIcon,
