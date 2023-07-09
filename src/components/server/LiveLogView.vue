@@ -198,7 +198,7 @@ export default {
     },
     async get_server_log() {
       if (this.status) {
-        await askForLog();
+        await this.askForLog();
         this.$nextTick(() => {
           this.scrollLogToBottom();
         });
