@@ -1,15 +1,10 @@
-use crate::files::get::{get_server_folder, get_app_folder};
-use serde::{Deserialize, Serialize};
+use crate::files::get::{get_app_folder, get_server_folder};
+use crate::server::structs::FileInfo;
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{Read, Write};
+use chrono::{DateTime, Local};
 use std::path::Path;
-
-#[derive(Serialize, Deserialize)]
-pub struct FileInfo {
-    name: String,
-    file_type: String,
-}
 
 pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, String> {
     let mut server_path = get_server_folder(server_id);
@@ -38,9 +33,28 @@ pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, Stri
                     }
                 };
 
+                let created = entry.metadata().map_or("unknown".to_string(), |m| {
+                    m.created()
+                        .map_or("unknown".to_string(), |ct| {
+                            DateTime::<Local>::from(ct).to_string()
+                        })
+                });
+
+                let modified = entry.metadata().map_or("unknown".to_string(), |m| {
+                    m.modified()
+                        .map_or("unknown".to_string(), |mt| {
+                            DateTime::<Local>::from(mt).to_string()
+                        })
+                });
+
+                let size_bytes = entry.metadata().map_or(0, |m| m.len());
+
                 let file_info = FileInfo {
                     name: file_name,
                     file_type,
+                    created,
+                    modified,
+                    size_bytes,
                 };
 
                 file_list.push(file_info);
@@ -60,8 +74,7 @@ pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, Stri
 }
 
 pub fn read_file(file_path: &str, server_id: &str) -> Result<String, String> {
-    let full_path = get_server_folder(server_id)
-        .join(file_path);
+    let full_path = get_server_folder(server_id).join(file_path);
     println!("[read-file]: {}", full_path.clone().display());
 
     let mut contents = String::new();
@@ -93,8 +106,7 @@ pub fn write_file(file_path: &str, contents: &str, server_id: &str) -> Result<()
 
 #[tauri::command]
 pub async fn open_file_or_explorer(server_id: &str, path: &str) -> Result<(), String> {
-    let server_dir: std::path::PathBuf =
-        get_server_folder(server_id).join(path);
+    let server_dir: std::path::PathBuf = get_server_folder(server_id).join(path);
     Ok(open::that(server_dir).unwrap())
 }
 

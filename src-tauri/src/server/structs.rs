@@ -24,3 +24,12 @@ pub struct SimpleServerInfo {
   s_type: String,
   image: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct FileInfo {
+    pub name: String,
+    pub file_type: String,
+    pub created: String,
+    pub modified: String,
+    pub size_bytes: u64,
+}

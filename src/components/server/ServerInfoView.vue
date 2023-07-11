@@ -165,7 +165,12 @@ $online: #0e7a20;
       }}
       |
       {{ server.mc_version }}
-      <Button outline style="margin-top: 10px;" @click="$refs.changeServerTypeModal.show()"><HashIcon />Change</Button>
+      <Button
+        outline
+        style="margin-top: 10px"
+        @click="$refs.changeServerTypeModal.show()"
+        ><HashIcon />Change</Button
+      >
     </Card>
     <h3>Advanced settings</h3>
     <Card class="advanced-settings">
@@ -184,7 +189,9 @@ $online: #0e7a20;
         />
       </div>
       <div class="field">
-        <label for="memory">Max memory ({{ server.memory_m }} mb)</label>
+        <label for="memory"
+          >Max memory ({{ server.memory_m || "??" }} mb)</label
+        >
         <Slider
           id="memory"
           v-model="server.memory_m"
@@ -201,6 +208,12 @@ $online: #0e7a20;
           server.java_path != originalServer.java_path
             ? 'primary'
             : ''
+        "
+        :disabled="
+          !(
+            server.memory_m != originalServer.memory_m ||
+            server.java_path != originalServer.java_path
+          )
         "
         @clicked="saveAdvancedSettings"
       ></SaveButton>
@@ -346,6 +359,7 @@ export default {
         this.server = JSON.parse(
           await invoke("get_server_info_command", { serverId: this.server_id })
         );
+        this.server.memory_m = parseInt(this.server.memory_m);
         this.originalServer = JSON.parse(JSON.stringify(this.server));
       }
     },

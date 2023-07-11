@@ -132,10 +132,8 @@ async fn download_mod_command(server_id: &str, mod_url: &str, mod_info: &str) ->
 }
 
 #[tauri::command]
-async fn execute_command_on_server(command: &str) -> Result<(), String> {
-    //Ok(server::run::send_command_to_server(command).await?)
-    Some(command);
-    Ok(())
+async fn execute_command_on_server(server_id: &str, command: &str) -> Result<(), String> {
+    Ok(server::run::send_command_to_server(server_id,command).await?)
 }
 
 #[tauri::command]

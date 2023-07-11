@@ -181,10 +181,14 @@ export default {
       // please if you know what are you doing (i don't)
       // add this feature to the rust...
       this.$refs.sendCommandModal.show();
-      return; // ↓ leaving this code for maybe future usage...
-      let sending = { command: this.serverCommand };
-      console.log(await invoke("execute_command_on_server", sending));
+      console.log(
+        await invoke("execute_command_on_server", {
+          serverId: this.serverId,
+          command: this.serverCommand,
+        })
+      );
       this.serverCommand = "";
+      return;
     },
     openLink(link) {
       window.open(link, "_blank");

@@ -14,7 +14,7 @@
   min-width: 230px;
 
   background-color: var(--color-bg);
-  
+
   overflow-y: auto;
   border-radius: $brr 2px 2px $brr;
   box-sizing: border-box;
@@ -23,7 +23,8 @@
     background-color: var(--color-raised-bg);
     padding: 15px 5px;
     box-sizing: border-box;
-    border-radius: var(--radius-md) var(--radius-md) var(--radius-sm) var(--radius-sm);
+    border-radius: var(--radius-md) var(--radius-md) var(--radius-sm)
+      var(--radius-sm);
     text-align: center;
     p,
     h3 {
@@ -147,10 +148,7 @@
         </Button>
         <Button
           @click="goToPage(9)"
-          v-if="
-            serverInfo.s_type == 'quilt' ||
-            serverInfo.s_type == 'fabric'
-          "
+          v-if="serverInfo.s_type == 'quilt' || serverInfo.s_type == 'fabric'"
           class="page"
           :color="page == 9 ? 'primary' : ''"
         >
@@ -160,7 +158,7 @@
       </div>
     </div>
     <div class="content">
-      <div v-show="page == 0">
+      <div v-if="page == 0">
         <ConsoleView
           :serverId="serverid"
           :serverInfo="serverInfo"
@@ -168,14 +166,14 @@
           :key="serverid + serverInfo"
         ></ConsoleView>
       </div>
-      <div v-show="page == 1">
+      <div v-if="page == 1">
         <ServerInfo
           :server_id="serverid"
           :status="status"
           :key="serverid"
         ></ServerInfo>
       </div>
-      <div v-show="page == 2">
+      <div v-if="page == 2">
         <PropertiesEditor
           :server_id="serverid"
           :key="serverid"
@@ -185,10 +183,9 @@
         <FileSystem :serverId="serverid" :key="serverid"></FileSystem>
       </div>
       <div
-        v-show="page == 9"
         v-if="
-          serverInfo.s_type == 'quilt' ||
-          serverInfo.s_type == 'fabric'
+          (serverInfo.s_type == 'quilt' || serverInfo.s_type == 'fabric') &&
+          page == 9
         "
       >
         <ModrinthMods
@@ -205,7 +202,7 @@
 <script>
 import ServerInfo from "./ServerInfoView.vue";
 import ConsoleView from "./LiveLogView.vue";
-import FileSystem from "./files.vue";
+import FileSystem from "./FileView.vue";
 import PropertiesEditor from "./PropertyEditorView.vue";
 import ModrinthMods from "./downloadMods.vue";
 import ServerTypeIcon from "../icons/ServerTypeIcon.vue";

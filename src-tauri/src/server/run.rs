@@ -1,12 +1,17 @@
 use crate::config::get::find_java_path;
 use crate::config::get::find_ram_configuration;
 use crate::files::get::get_server_folder;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process::Stdio;
 use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 use tokio::process::Command;
 use tokio::time::Duration;
+
+lazy_static::lazy_static! {
+    static ref COMMANDS: HashMap<String, String> = HashMap::new();
+}
 
 #[cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 pub async fn run_server_and_save_output(
@@ -49,17 +54,18 @@ pub async fn run_server_and_save_output(
     let mut process = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
+        .stdin(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
 
     let process_id: u32;
-    
+
     loop {
         if let Some(pid) = process.id() {
             process_id = pid;
             break;
         }
-    
+
         tokio::time::sleep(Duration::from_millis(100)).await;
     }
 
@@ -84,6 +90,10 @@ pub async fn run_server_and_save_output(
         .stderr
         .take()
         .ok_or("[run-server]: Failed to capture standard error")?;
+    let mut stdin = process
+        .stdin
+        .take()
+        .ok_or("[run-server]: Failed to capture standard input")?;
 
     let log_file_path = server_folder.join("server_latest_log.log");
     let mut log_file = File::create(log_file_path)
@@ -96,7 +106,7 @@ pub async fn run_server_and_save_output(
     let mut line_stdout = String::new();
     let mut line_stderr = String::new();
 
-   println!("[run-server]: Starting server");
+    println!("[run-server]: Starting server");
     loop {
         tokio::select! {
             result = reader_stdout.read_line(&mut line_stdout) => {
@@ -117,49 +127,66 @@ pub async fn run_server_and_save_output(
                 log_file.write_all(b"\n").await.map_err(|e| e.to_string())?;
                 line_stderr.clear();
             }
+            _ = async {
+                let commands = COMMANDS.clone();
+
+                for (c_server_id, command) in commands.iter() {
+                    if c_server_id == server_id {
+                        match stdin.write_all(command.as_bytes()).await {
+                            Ok(_) => {}
+                            Err(e) => return Err(e.to_string()),
+                        }
+                        match stdin.write_all(b"\n").await {
+                            Ok(_) => {}
+                            Err(e) => return Err(e.to_string()),
+                        }
+                        match remove_command_from_server(server_id.clone()).await {
+                            Ok(_) => {}
+                            Err(e) => return Err(e.to_string()),
+                        }
+                    }
+                }
+
+                tokio::time::sleep(Duration::from_millis(100)).await; // Introduce a delay
+
+                Ok(())
+            } => {}
         }
     }
 
     let _ = process.wait().await.map_err(|e| e.to_string())?;
 
-    let is_running = process.try_wait().map_err(|e| e.to_string())?.is_none();
-
-    if !is_running {
-        println!("[run-server]: Server stopped");
-        log_file
-            .write_all("[run-server]: Server stopped".as_bytes())
+    println!("[run-server]: Server stopped");
+    log_file
+        .write_all("[run-server]: Server stopped".as_bytes())
+        .await
+        .map_err(|e| e.to_string())?;
+    log_file.write_all(b"\n").await.map_err(|e| e.to_string())?;
+    let pid_file_path = server_folder.join("server_pid.txt");
+    if pid_file_path.exists() {
+        tokio::fs::remove_file(pid_file_path)
             .await
             .map_err(|e| e.to_string())?;
-        log_file.write_all(b"\n").await.map_err(|e| e.to_string())?;
-        let pid_file_path = server_folder.join("server_pid.txt");
-        if pid_file_path.exists() {
-            tokio::fs::remove_file(pid_file_path)
-                .await
-                .map_err(|e| e.to_string())?;
-            println!("PID file removed");
-        }
+        println!("[run-server]: PID file removed");
     }
 
-    Ok(is_running)
+    Ok(false)
 }
 
-// pub async fn send_command_to_server(command: &str) -> Result<(), String> {
-//     let sender = COMMAND_SENDER.get().ok_or("Server process not running")?;
-//     let sender = sender.lock().map_err(|e| e.to_string())?;
-//     let sender = match sender {
-//         Ok(guard) => guard,
-//         Err(poisoned) => poisoned.into_inner(),
-//     };
-//     let sender = sender.ok_or("Server process not running")?;
-//     sender.send(command.to_string())
-//         .await
-//         .map_err(|e| e.to_string())?;
-//     Ok(())
-// }
+pub async fn send_command_to_server(server_id: &str, command: &str) -> Result<(), String> {
+    let mut commands = COMMANDS.clone();
+    commands.insert(String::from(server_id), String::from(command));
+    Ok(())
+}
+
+pub async fn remove_command_from_server(server_id: &str) -> Result<(), String> {
+    let mut commands = COMMANDS.clone();
+    commands.remove(server_id);
+    Ok(())
+}
 
 pub async fn kill_server_process(server_id: &str) -> Result<(), String> {
-    let pid_file_path = get_server_folder(server_id)
-        .join("server_pid.txt");
+    let pid_file_path = get_server_folder(server_id).join("server_pid.txt");
 
     if !pid_file_path.exists() {
         return Ok(());
