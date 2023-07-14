@@ -1,11 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+mod config;
 mod files;
 mod server;
-mod config;
 use serde_json;
 use std::fs;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 fn get_servers_dir() -> PathBuf {
     let data_dir = dirs::data_dir().expect("Failed to get the data directory");
@@ -104,7 +104,11 @@ fn get_server_info_command(server_id: &str) -> Result<String, String> {
 
 #[tauri::command]
 async fn start_server_command(server_id: String, server_type: String) -> Result<bool, String> {
-    Ok(server::run::run_server_and_save_output(&server_id, &server_type).await.unwrap())
+    Ok(
+        server::run::run_server_and_save_output(&server_id, &server_type)
+            .await
+            .unwrap(),
+    )
 }
 
 #[tauri::command]
@@ -121,23 +125,28 @@ fn remove_server_commamd(server_id: &str) -> Result<(), String> {
 fn get_mods_as_string(server_id: &str) -> Result<String, String> {
     let servers_dir = get_servers_dir();
     let server_folder = servers_dir.join("servers").join(server_id);
-    let server_info = server::mods::get_server_mods(server_folder.as_path()).map_err(|e| e.to_string())?;
+    let server_info =
+        server::mods::get_server_mods(server_folder.as_path()).map_err(|e| e.to_string())?;
     let mods_string = serde_json::to_string_pretty(&server_info).map_err(|e| e.to_string())?;
     Ok(mods_string)
 }
 
 #[tauri::command]
-async fn download_mod_command(server_id: &str, mod_url: &str, mod_info: &str) -> Result<String, String> {
+async fn download_mod_command(
+    server_id: &str,
+    mod_url: &str,
+    mod_info: &str,
+) -> Result<String, String> {
     Ok(server::mods::add_mod_to_server(server_id, mod_url, mod_info).await?)
 }
 
 #[tauri::command]
 async fn execute_command_on_server(server_id: &str, command: &str) -> Result<(), String> {
-    Ok(server::run::send_command_to_server(server_id,command).await?)
+    Ok(server::run::send_command_to_server(server_id, command).await?)
 }
 
 #[tauri::command]
-async fn kill_server_command(server_id: String) -> Result<(),String> {
+async fn kill_server_command(server_id: String) -> Result<(), String> {
     Ok(server::run::kill_server_process(&server_id).await.unwrap())
 }
 
@@ -152,22 +161,22 @@ fn get_config_command() -> Result<String, String> {
 }
 
 #[tauri::command]
-fn set_config_command(name: &str, value: &str) -> Result<(),String> {
-    Ok(config::set::update_setting(name,value).unwrap())
+fn set_config_command(name: &str, value: &str) -> Result<(), String> {
+    Ok(config::set::update_setting(name, value).unwrap())
 }
 
 #[tauri::command]
-async fn get_server_status_command(server_id: &str) -> Result<bool,String> {
+async fn get_server_status_command(server_id: &str) -> Result<String, String> {
     Ok(server::info::check_server_status(server_id).await.unwrap())
 }
 
 #[tauri::command]
-fn get_server_file(file_path: &str, server_id: &str) -> Result<String,String> {
+fn get_server_file(file_path: &str, server_id: &str) -> Result<String, String> {
     Ok(server::files::read_file(file_path, server_id).unwrap())
 }
 
 #[tauri::command]
-fn set_server_file(file_path: &str, contents: &str, server_id: &str) -> Result<(),String> {
+fn set_server_file(file_path: &str, contents: &str, server_id: &str) -> Result<(), String> {
     Ok(server::files::write_file(file_path, contents, server_id).unwrap())
 }
 
@@ -177,7 +186,6 @@ async fn edit_server(server_id: &str, field: &str, value: &str) -> Result<(), St
     files::server::update_server_field(server_id, field, value)?;
     Ok(())
 }
-
 
 // #[derive( Deserialize)]
 // struct ServerStatus {

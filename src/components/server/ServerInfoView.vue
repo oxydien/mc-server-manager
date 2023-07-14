@@ -3,6 +3,7 @@
 
 $offline: #710b0b;
 $online: #0e7a20;
+$starting: #a28814;
 
 .image-input {
   width: fit-content;
@@ -32,6 +33,8 @@ $online: #0e7a20;
 .server-info-wrapper {
   max-width: 100%;
   overflow: hidden;
+  background-color: var(--color-raised-bg);
+  border-radius: 7px;
 
   .flex-heading {
     position: relative;
@@ -41,6 +44,9 @@ $online: #0e7a20;
 
     &.online {
       background-color: $online;
+    }
+    &.starting {
+      background-color: $starting;
     }
     &.offline {
       background-color: $offline;
@@ -57,6 +63,45 @@ $online: #0e7a20;
       padding: 2px;
       background-color: $fg-ma;
       border-radius: 5px;
+    }
+  }
+  .server-info-details {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    padding: 10px;
+    gap: var(--gap-xs);
+
+    .motd {
+      display: flex;
+      gap: var(--gap-xs);
+      flex-basis: fit-content;
+      background-color: var(--color-button-bg);
+      border-radius: var(--radius-sm);
+      padding: var(--gap-xs);
+      height: fit-content;
+      color: #fff;
+      & > span {
+        margin: 5px 0;
+      }
+    }
+    .players {
+      background-color: var(--color-button-bg);
+      border-radius: var(--radius-sm);
+      padding: var(--gap-xs);
+      min-width: 200px;
+      h3 {
+        margin: 2px 0;
+      }
+      .player-list {
+        display: flex;
+        flex-flow: column nowrap;
+        span {
+          display: flex;
+          gap: var(--gap-xs);
+          align-items: center;
+        }
+      }
     }
   }
 }
@@ -101,14 +146,55 @@ $online: #0e7a20;
 
 <template>
   <div class="server-info-wrapper">
-    <div class="flex-heading" :class="status ? 'online' : 'offline'">
+    <div
+      class="flex-heading"
+      :class="
+        status.online ? 'online' : status.starting ? 'starting' : 'offline'
+      "
+    >
       <div class="simple-status">
         <div>
-          {{ status ? "Online" : "Offline" }}
-          <span v-if="status">: {{ players }}/{{ maxPlayers }}</span>
+          {{
+            status.online
+              ? "Online"
+              : status.starting
+              ? "Working..."
+              : "Offline"
+          }}
+          <span v-if="status.online"
+            >: {{ status.data.players.online }}/{{
+              status.data.players.max
+            }}</span
+          >
         </div>
       </div>
-      <h1>{{ server.name }}</h1>
+      <h1>{{ server.name || "..." }}</h1>
+    </div>
+    <div class="server-info-details" v-if="status.online">
+      <div class="motd">
+        <Avatar class="motd-image" size="sm" :src="status.data.favicon" />
+        <span v-html="serverMotd"></span>
+      </div>
+      <div
+        class="players"
+        v-if="
+          status.data.players.sample && status.data.players.sample.length < 100
+        "
+      >
+        <h3>Player list</h3>
+        <div class="player-list">
+          <span
+            v-for="(player, index) in status.data.players.sample"
+            :key="index + player"
+          >
+            <Avatar
+              size="xs"
+              :src="'https://mc-heads.net/avatar/' + player.id + '/64'"
+            />
+            {{ player.name }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
   <section>
@@ -333,7 +419,7 @@ export default {
     },
     status: {
       default: false,
-      type: Boolean,
+      type: Object,
     },
   },
   data() {
@@ -499,6 +585,93 @@ export default {
         return "jdk17";
       }
       return "jdk8";
+    },
+    serverMotd() {
+      let codeSplit = this.status.data.description.text.split(
+        /([§][0-9a-fA-FfklmnorxFKLMNORX])/g
+      );
+
+      let colorHex = "";
+      let fontStyle = "";
+      let skipNext = 0;
+      let resultHTML = "";
+      let colorCodeToHex = {
+        "§0": "#000000",
+        "§1": "#0000AA",
+        "§2": "#00AA00",
+        "§3": "#00AAAA",
+        "§4": "#AA0000",
+        "§5": "#AA00AA",
+        "§6": "#FFAA00",
+        "§7": "#AAAAAA",
+        "§8": "#555555",
+        "§9": "#5555FF",
+        "§a": "#55FF55",
+        "§b": "#55FFFF",
+        "§c": "#FF5555",
+        "§d": "#FF55FF",
+        "§e": "#FFFF55",
+        "§f": "#FFFFFF",
+      };
+      let extras = {
+        "§k": "obfuscated;",
+        "§l": "font-weight: bold;",
+        "§m": "text-decoration: line-through;",
+        "§n": "text-decoration:underline;",
+        "§o": "font-style: oblique 20deg;",
+      };
+
+      codeSplit.forEach((item, index) => {
+        if (skipNext > 0) {
+          skipNext--;
+          return;
+        }
+        const stringToLowerCase = item.toLowerCase();
+        if (stringToLowerCase === "§r") {
+          colorHex = "";
+          fontStyle = "";
+        } else if (colorCodeToHex.hasOwnProperty(stringToLowerCase)) {
+          colorHex = colorCodeToHex[stringToLowerCase];
+        } else if (extras.hasOwnProperty(stringToLowerCase)) {
+          fontStyle = extras[stringToLowerCase];
+        } else if (stringToLowerCase === "§x") {
+          const hexColourCode = (
+            "#" +
+            codeSplit[index + 2] +
+            codeSplit[index + 4] +
+            codeSplit[index + 6] +
+            codeSplit[index + 8] +
+            codeSplit[index + 10] +
+            codeSplit[index + 12]
+          ).replaceAll("§", "");
+          resultHTML += `<span style="color:${hexColourCode}${fontStyle}">${
+            codeSplit[index + 13]
+          }</span>`;
+          skipNext = 13;
+        } else {
+          let resultColor = "";
+          if (colorHex !== "") {
+            resultColor = `color:${colorHex};`;
+          }
+          if (item !== "") {
+            let textContent = item
+              .replace(/ /g, "\u00a0")
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/\"/g, "&quot;")
+              .replace(/\'/g, "&#39;")
+              .replace(/\n/g, "<br/>");
+            if (resultColor.length !== 0 || fontStyle.length !== 0) {
+              resultHTML += `<span style="${resultColor}${fontStyle}">${textContent}</span>`;
+            } else {
+              resultHTML += textContent;
+            }
+          }
+        }
+      });
+
+      return resultHTML;
     },
   },
 };

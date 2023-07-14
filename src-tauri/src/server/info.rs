@@ -1,4 +1,6 @@
 use crate::files::get::get_server_folder;
+use mc_query;
+use serde_json::json;
 use std::{fs, io::Read};
 
 pub fn get_server_info(server_id: &str) -> Result<String, String> {
@@ -16,11 +18,17 @@ pub fn get_server_info(server_id: &str) -> Result<String, String> {
     Ok(server_info_string)
 }
 
-pub async fn check_server_status(server_id: &str) -> Result<bool, String> {
+pub async fn check_server_status(server_id: &str) -> Result<String, String> {
     let pid_file_path = get_server_folder(server_id).join("server_pid.txt");
 
     if !pid_file_path.exists() {
-        return Ok(false);
+        let offline_status = json!({
+            "offline": true,
+            "starting": false,
+            "online": false,
+            "data": {}
+        });
+        return Ok(offline_status.to_string());
     }
 
     let pid_str = tokio::fs::read_to_string(pid_file_path)
@@ -37,13 +45,56 @@ pub async fn check_server_status(server_id: &str) -> Result<bool, String> {
             Ok(output) => {
                 let output_str = String::from_utf8_lossy(&output.stdout);
                 let process_exists = output_str.contains(&pid.to_string());
-                Ok(process_exists)
+
+                if process_exists {
+                    if let Some(server_data) = get_server_info_data(
+                        "127.0.0.1",
+                        crate::server::files::get_server_port(server_id)?,
+                    )
+                    .await
+                    {
+                        let online_status = json!({
+                            "offline": false,
+                            "starting": false,
+                            "online": true,
+                            "data": server_data,
+                        });
+                        return Ok(online_status.to_string());
+                    } else {
+                        let starting_status = json!({
+                            "offline": false,
+                            "starting": true,
+                            "online": false,
+                            "data": {},
+                        });
+                        return Ok(starting_status.to_string());
+                    }
+                } else {
+                    let offline_status = json!({
+                        "offline": true,
+                        "starting": false,
+                        "online": false,
+                        "data": {}
+                    });
+                    return Ok(offline_status.to_string());
+                }
             }
             Err(e) => Err(e.to_string()),
         }
     } else {
-        Ok(false)
+        let offline_status = json!({
+            "offline": true,
+            "starting": false,
+            "online": false,
+            "data": {}
+        });
+        Ok(offline_status.to_string())
     }
+}
+
+async fn get_server_info_data(server_ip: &str, server_port: u16) -> Option<mc_query::status::StatusResponse> {
+    let data = mc_query::status(server_ip, server_port).await.ok()?;
+    Some(data)
 }
 
 pub fn update_server_info_field(name: &str, value: &str, server_id: &str) -> Result<(), String> {

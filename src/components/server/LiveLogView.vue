@@ -154,7 +154,7 @@ export default {
     },
     status: {
       default: false,
-      type: Boolean,
+      type: Object,
     },
   },
   data() {

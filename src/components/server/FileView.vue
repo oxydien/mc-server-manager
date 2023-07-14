@@ -174,6 +174,7 @@
       :serverId="serverId"
       @updatedContent:fileContent="(newContent) => (fileContent = newContent)"
       @CloseTextEditor="fileOpen = false"
+      @changeTab="(tab)=>{$emit('changeTab',tab)}"
     >
     </TextEditor>
   </div>
@@ -181,7 +182,7 @@
 
 <script>
 import { invoke } from "@tauri-apps/api/tauri";
-import TextEditor from "./textEditor.vue";
+import TextEditor from "./TextEditorView.vue";
 import { Button, Modal, Chips, ListIcon, GridIcon, HomeIcon } from "omorphia";
 
 export default {
@@ -236,6 +237,7 @@ export default {
   mounted() {
     this.goToFolder();
   },
+  emits:["changeTab"],
   methods: {
     goToFolder(name = null) {
       if (name != null) {

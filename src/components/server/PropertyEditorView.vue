@@ -37,7 +37,7 @@ h2 {
   <section>
     <h2>
       Property editor
-      <SaveButton color="highlight" :disabled="!(JSON.stringify(originalPropertyFile) != JSON.stringify(propertyFile))"/>
+      <SaveButton color="highlight" @click="saveServerProperties" :disabled="!(JSON.stringify(originalPropertyFile) != JSON.stringify(propertyFile))"/>
     </h2>
     <div v-for="(value, key) in propertyFile" :key="key" class="form-group">
       <label :for="key">{{ key }}</label>

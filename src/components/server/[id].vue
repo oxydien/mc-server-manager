@@ -100,7 +100,11 @@
           {{ serverInfo.mc_version || "ding..." }}
         </p>
         <div class="buttons">
-          <Button v-if="!status" @click="startServer" class="start-button">
+          <Button
+            v-if="!status.starting && !status.online"
+            @click="startServer"
+            class="start-button"
+          >
             <PlayIcon />
             Start
           </Button>
@@ -180,7 +184,15 @@
         ></PropertiesEditor>
       </div>
       <div v-show="page == 3">
-        <FileSystem :serverId="serverid" :key="serverid"></FileSystem>
+        <FileSystem
+          :serverId="serverid"
+          :key="serverid"
+          @changeTab="
+            (tab) => {
+              handleChangingTab(tab);
+            }
+          "
+        ></FileSystem>
       </div>
       <div
         v-if="
@@ -224,7 +236,12 @@ export default {
       page: 0,
       serverid: "",
       serverInfo: {},
-      status: false,
+      status: {
+        offline: true,
+        starting: false,
+        online: false,
+        data: {},
+      },
       serverStatusInterval: {},
     };
   },
@@ -284,7 +301,7 @@ export default {
       const response = await invoke("get_server_status_command", {
         serverId: this.serverid,
       });
-      this.status = response;
+      this.status = JSON.parse(response);
     },
     goToPage(page) {
       this.page = page;
@@ -299,6 +316,18 @@ export default {
     },
     replaceImgbySvg() {
       this.serverInfo.image = null;
+    },
+    handleChangingTab(tab) {
+      switch (tab) {
+        case "properties": {
+          this.page = 2;
+          break;
+        }
+        case "server_info": {
+          this.page = 1;
+          break;
+        }
+      }
     },
   },
 };

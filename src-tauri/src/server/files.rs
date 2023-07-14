@@ -1,9 +1,9 @@
 use crate::files::get::{get_app_folder, get_server_folder};
 use crate::server::structs::FileInfo;
+use chrono::{DateTime, Local};
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{Read, Write};
-use chrono::{DateTime, Local};
 use std::path::Path;
 
 pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, String> {
@@ -34,17 +34,15 @@ pub fn get_file_list(server_id: &str, path: Option<&str>) -> Result<String, Stri
                 };
 
                 let created = entry.metadata().map_or("unknown".to_string(), |m| {
-                    m.created()
-                        .map_or("unknown".to_string(), |ct| {
-                            DateTime::<Local>::from(ct).to_string()
-                        })
+                    m.created().map_or("unknown".to_string(), |ct| {
+                        DateTime::<Local>::from(ct).to_string()
+                    })
                 });
 
                 let modified = entry.metadata().map_or("unknown".to_string(), |m| {
-                    m.modified()
-                        .map_or("unknown".to_string(), |mt| {
-                            DateTime::<Local>::from(mt).to_string()
-                        })
+                    m.modified().map_or("unknown".to_string(), |mt| {
+                        DateTime::<Local>::from(mt).to_string()
+                    })
                 });
 
                 let size_bytes = entry.metadata().map_or(0, |m| m.len());
@@ -161,4 +159,18 @@ pub fn write_server_properties(server_id: &str, json_string: &str) -> Result<(),
     }
 
     Ok(())
+}
+
+pub fn get_server_port(server_id: &str) -> Result<u16, String> {
+    let server_properties_json: String = read_server_properties(server_id)?;
+    let server_properties: HashMap<String, String> = serde_json::from_str(&server_properties_json)
+        .map_err(|e| e.to_string())?;
+
+    if let Some(port_str) = server_properties.get("server-port") {
+        if let Ok(port) = port_str.parse::<u16>() {
+            return Ok(port);
+        }
+    }
+
+    Err("Failed to retrieve server port".to_string())
 }
